@@ -1,20 +1,67 @@
-let numeroMaximo = 100
-let numeroSecreto = parseInt(Math.random() * numeroMaximo + 1); 
-console.log(numeroSecreto);   
-alert("Jogo de adivinhar numero"); 
-let chute // descobri que da para declarar variaveis sem colocar o recebe e colocar o recebe "=" depois como fiz aqui na linha 8 (chute = parseInt(prompt("escolha um numero entre 0 e 100"));)
-let numerotentativas = 1
+let listaDeNumerosSorteados = [];
+let numeroLimite = 10;
+let numeroSecreto = gerarNumeroAleatorio(); 
+let tentativas = 1;
 
-while ( chute != numeroSecreto) {
-    chute = parseInt(prompt(`escolha um numero entre 0 e ${numeroMaximo}`));
+function exibirTextoNaTela(tag, texto) {
+    let campo = document.querySelector(tag);
+    campo.innerHTML = texto;
+    responsiveVoice.speak(texto, 'Brazilian Portuguese Female', {rate:1.2});
+}
+
+function exibirMensagemInicial() {
+    exibirTextoNaTela('h1', 'Jogo do número secreto');
+    exibirTextoNaTela('p', 'Escolha um número entre 1 e 10');
+}
+
+exibirMensagemInicial();
+
+function verificarChute() {
+    let chute = document.querySelector('input').value;
     
     if (chute == numeroSecreto) {
-        let palavraTentativa = numerotentativas > 1 ? "tentativas" : "tentativa" ;
-        alert(`Parabens, vc acertou com ${numerotentativas} ${palavraTentativa}`);
-    } else if ( chute < numeroSecreto) {
-        alert("vc errou, o numero secreto e maior. ");
-    } else if ( chute > numeroSecreto) {
-        alert("vc errou, o numero secreto e menor. ");
+        exibirTextoNaTela('h1', 'Acertou!');
+        let palavraTentativa = tentativas > 1 ? 'tentativas' : 'tentativa';
+        let mensagemTentativas = `Você descobriu o número secreto com ${tentativas} ${palavraTentativa}!`;
+        exibirTextoNaTela('p', mensagemTentativas);
+        document.getElementById('reiniciar').removeAttribute('disabled');
+    } else {
+        if (chute > numeroSecreto) {
+            exibirTextoNaTela('p', 'O número secreto é menor');
+        } else {
+            exibirTextoNaTela('p', 'O número secreto é maior');
+        }
+        tentativas++;
+        limparCampo();
     }
-    numerotentativas++
 }
+
+function gerarNumeroAleatorio() {
+    let numeroEscolhido = parseInt(Math.random() * numeroLimite + 1);
+    let quantidadeDeElementosNaLista = listaDeNumerosSorteados.length;
+
+    if (quantidadeDeElementosNaLista == numeroLimite) {
+        listaDeNumerosSorteados = [];
+    }
+    if (listaDeNumerosSorteados.includes(numeroEscolhido)) {
+        return gerarNumeroAleatorio();
+    } else {
+        listaDeNumerosSorteados.push(numeroEscolhido);
+        console.log(listaDeNumerosSorteados)
+        return numeroEscolhido;
+    }
+}
+
+function limparCampo() {
+    chute = document.querySelector('input');
+    chute.value = '';
+}
+
+function reiniciarJogo() {
+    numeroSecreto = gerarNumeroAleatorio();
+    limparCampo();
+    tentativas = 1;
+    exibirMensagemInicial();
+    document.getElementById('reiniciar').setAttribute('disabled', true)
+}
+
